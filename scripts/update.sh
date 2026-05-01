@@ -11,6 +11,10 @@ PKG=package.nix
 EXT=extension.nix
 ZERO_HASH="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 
+# Always invoke nixpkgs' nix-prefetch-git rather than whatever happens to be on
+# PATH (e.g. hydra's, which has incompatible flags).
+NIX_PREFETCH_GIT=(nix run --extra-experimental-features 'nix-command flakes' nixpkgs#nix-prefetch-git --)
+
 bump_host() {
   echo "==> Bumping native host"
   local new_rev new_version
@@ -21,7 +25,7 @@ bump_host() {
   echo "    version: ${new_version}"
 
   local new_src_hash
-  new_src_hash=$(nix-prefetch-git --quiet --url "https://github.com/${UPSTREAM_REPO}.git" --rev "${new_rev}" \
+  new_src_hash=$("${NIX_PREFETCH_GIT[@]}" --quiet --url "https://github.com/${UPSTREAM_REPO}.git" --rev "${new_rev}" \
     | grep -oP '"hash"\s*:\s*"\K[^"]+')
   echo "    src hash: ${new_src_hash}"
 
@@ -86,8 +90,11 @@ bump_extension() {
     -e "s|hash = \"sha256-[^\"]*\";|hash = \"${new_xpi_hash}\";|" \
     "${EXT}"
 
-  # Update the xpi download URL (file id may change).
-  sed -i -E "s|file/[0-9]+/claudezilla-[^\"]+\\.xpi|$(echo "${xpi_url}" | sed -E 's|.*/(file/[0-9]+/claudezilla-[^"]+\.xpi)|\1|')|" "${EXT}"
+  # Update the xpi download URL (file id changes per AMO version). Replace only
+  # the numeric file id so the ${finalAttrs.version} interpolation is preserved.
+  local new_file_id
+  new_file_id=$(echo "${xpi_url}" | grep -oP 'file/\K[0-9]+')
+  sed -i -E "s|file/[0-9]+/claudezilla-|file/${new_file_id}/claudezilla-|" "${EXT}"
 
   nix build .#firefox-extension
 }

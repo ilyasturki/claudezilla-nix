@@ -5,6 +5,8 @@
   makeWrapper,
   nodejs,
   pnpm_9,
+  pnpmConfigHook,
+  fetchPnpmDeps,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "claudezilla";
@@ -17,17 +19,19 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-joPcErBP8a6zZGwSLvzFb1ajCzQPEm1vudVKgHgFePk=";
   };
 
-  pnpmDeps = pnpm_9.fetchDeps {
+  pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     sourceRoot = "${finalAttrs.src.name}/mcp";
     hash = "sha256-gADsv7csWCNzr1J7rlHGDcRR97M3jJ9npIUTtm+2n3U=";
     fetcherVersion = 2;
+    pnpm = pnpm_9;
   };
 
   nativeBuildInputs = [
     makeWrapper
     nodejs
-    pnpm_9.configHook
+    pnpm_9
+    pnpmConfigHook
   ];
 
   pnpmRoot = "mcp";
