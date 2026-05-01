@@ -63,7 +63,7 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Firefox browser automation bridge for Claude Code (native host + MCP server)";
     homepage = "https://claudezilla.com";
     license = lib.licenses.mit;
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
     mainProgram = "claudezilla-mcp";
   };
 })
