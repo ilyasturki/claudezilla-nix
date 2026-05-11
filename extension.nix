@@ -9,11 +9,11 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "claudezilla-firefox-extension";
-  version = "0.6.4";
+  version = "0.6.5";
 
   src = fetchurl {
-    url = "https://addons.mozilla.org/firefox/downloads/file/4747442/claudezilla-${finalAttrs.version}.xpi";
-    hash = "sha256-nDYNE2iWrjHWSrUmifm8GJeI0YC1nJ6jkD1TncH6nuM=";
+    url = "https://addons.mozilla.org/firefox/downloads/file/4799173/claudezilla-${finalAttrs.version}.xpi";
+    hash = "sha256-v5j7VGQv5rJFpVAaI1geGf4ZTPyKSOQt7f+JD5Y9Uwc=";
   };
 
   dontUnpack = true;
