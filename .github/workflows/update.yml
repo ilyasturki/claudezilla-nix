@@ -21,6 +21,7 @@ jobs:
       - name: Run update script
         run: ./scripts/update.sh
       - name: Create pull request
+        id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           commit-message: "chore: update claudezilla"
@@ -28,8 +29,20 @@ jobs:
           body: |
             Automated weekly bump of the claudezilla native host (upstream `main`)
             and the AMO Firefox extension xpi.
+
+            The native host and extension were already built and `nix flake check`ed
+            by the update job before this PR was opened, so this is merged automatically.
           branch: chore/update-claudezilla
           labels: |
             dependencies
             automated
           delete-branch: true
+      - name: Merge pull request
+        if: steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.cpr.outputs.pull-request-number }}
+        # Reaching this step implies the in-job build + flake check already passed, so
+        # the validated bump can land directly. (build.yml does not re-run on PRs opened
+        # by GITHUB_TOKEN, so there are no extra checks to gate on here.)
+        run: gh pr merge --squash --delete-branch "$PR"
