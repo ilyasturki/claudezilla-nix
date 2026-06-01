@@ -36,6 +36,10 @@ To uninstall: `nix profile remove claudezilla`.
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     claudezilla-nix.url = "github:ilyasturki/claudezilla-nix";
+    # Build claudezilla against your own nixpkgs instead of the one this
+    # flake pins (nixpkgs-unstable). Recommended — avoids pulling a second
+    # nixpkgs copy and keeps the package on the same channel as your system.
+    claudezilla-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = { nixpkgs, claudezilla-nix, ... }: {
@@ -44,6 +48,9 @@ To uninstall: `nix profile remove claudezilla`.
   };
 }
 ```
+
+The `overlays.default` and home-manager paths below already build against your
+nixpkgs; the `follows` above only affects `packages.*` consumers.
 
 You can also consume the overlay:
 
