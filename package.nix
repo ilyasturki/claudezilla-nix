@@ -38,26 +38,44 @@ stdenv.mkDerivation (finalAttrs: {
 
   dontBuild = true;
 
-  installPhase = ''
-    runHook preInstall
+  installPhase =
+    let
+      # Shipped in-package at the wrapFirefox / MOZ_SYSTEM_DIR location so
+      # consumers register it via programs.firefox.nativeMessagingHosts rather
+      # than hand-writing a manifest into ~/.mozilla. allowed_extensions mirrors
+      # claudezilla-firefox-extension's passthru.addonId.
+      nativeHostManifest = builtins.toJSON {
+        name = "claudezilla";
+        description = "Claude Code Firefox browser automation bridge";
+        path = "${placeholder "out"}/bin/claudezilla-host";
+        type = "stdio";
+        allowed_extensions = [ "claudezilla@boot.industries" ];
+      };
+    in
+    ''
+      runHook preInstall
 
-    libexec=$out/libexec/claudezilla
-    mkdir -p $libexec $out/bin
+      libexec=$out/libexec/claudezilla
+      mkdir -p $libexec $out/bin
 
-    cp -r host $libexec/host
-    cp -r mcp $libexec/mcp
+      cp -r host $libexec/host
+      cp -r mcp $libexec/mcp
 
-    chmod 755 $libexec/host/index.js
-    chmod 755 $libexec/mcp/server.js
+      chmod 755 $libexec/host/index.js
+      chmod 755 $libexec/mcp/server.js
 
-    makeWrapper ${nodejs}/bin/node $out/bin/claudezilla-host \
-      --add-flags "$libexec/host/index.js"
+      makeWrapper ${nodejs}/bin/node $out/bin/claudezilla-host \
+        --add-flags "$libexec/host/index.js"
 
-    makeWrapper ${nodejs}/bin/node $out/bin/claudezilla-mcp \
-      --add-flags "$libexec/mcp/server.js"
+      makeWrapper ${nodejs}/bin/node $out/bin/claudezilla-mcp \
+        --add-flags "$libexec/mcp/server.js"
 
-    runHook postInstall
-  '';
+      mkdir -p $out/lib/mozilla/native-messaging-hosts
+      printf '%s\n' ${lib.escapeShellArg nativeHostManifest} \
+        > $out/lib/mozilla/native-messaging-hosts/claudezilla.json
+
+      runHook postInstall
+    '';
 
   meta = {
     description = "Firefox browser automation bridge for Claude Code (native host + MCP server)";
