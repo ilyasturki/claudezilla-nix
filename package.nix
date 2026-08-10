@@ -10,13 +10,13 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "claudezilla";
-  version = "0.6.6";
+  version = "0.6.9";
 
   src = fetchFromGitHub {
     owner = "boot-industries";
     repo = "claudezilla";
-    rev = "34368f7a697b19f40c70be4aee4bde8f738670a0";
-    hash = "sha256-2ULHI2qQcSmrABVGh5/40+TntXJDUAjQjlaDCLNNWuM=";
+    rev = "167730252d039e05e6b29114b74266d948c40dd4";
+    hash = "sha256-I6iLNSm3YQKFlYrF4k6UriwKHTc/1ZHFDCjF07+MStg=";
   };
 
   pnpmDeps = fetchPnpmDeps {
