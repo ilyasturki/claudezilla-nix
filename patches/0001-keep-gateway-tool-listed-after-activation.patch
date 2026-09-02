@@ -1,0 +1,30 @@
+Keep firefox_activate listed after activation
+
+ListTools returns the gateway tool only while `isActivated` is false, and
+`firefox_activate` lives in GATEWAY_TOOLS rather than TOOLS. Once any category
+is activated the gateway disappears from the tool list for the rest of the
+session, so a client that activated a narrow category can never widen it.
+
+This bites hardest with "diagnose", whose CATEGORY_GROUPS entry is ['diagnose']
+and does not pull in 'core': the session is left with firefox_diagnose as its
+only reachable tool. The ACTIVATION_REQUIRED recovery path in CallTool does not
+help, because a client cannot call a tool whose schema was never advertised.
+
+The CallTool handler already processes firefox_activate unconditionally, ahead
+of every activation check, so simply keeping it listed is enough to make
+widening work.
+
+--- a/mcp/server.js
++++ b/mcp/server.js
+@@ -1408,7 +1408,10 @@
+     availableTools = availableTools.filter(tool => tool.name !== 'firefox_navigate');
+   }
+ 
+-  return { tools: availableTools };
++  // Keep the gateway listed so a later call can widen the activated set: a
++  // session that activated a narrow category (e.g. "diagnose") would otherwise
++  // lose firefox_activate for good and never reach the browser tools.
++  return { tools: [...GATEWAY_TOOLS, ...availableTools] };
+ });
+ 
+ // Handle tool calls

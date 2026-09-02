@@ -27,6 +27,8 @@ stdenv.mkDerivation (finalAttrs: {
     pnpm = pnpm_10;
   };
 
+  patches = [ ./patches/0001-keep-gateway-tool-listed-after-activation.patch ];
+
   nativeBuildInputs = [
     makeWrapper
     nodejs
