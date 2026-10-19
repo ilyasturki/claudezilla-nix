@@ -15,8 +15,8 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "boot-industries";
     repo = "claudezilla";
-    rev = "db0440218127a38c25bc77db9bf2c6f88dd16012";
-    hash = "sha256-dSvuf83X6tmIeNCyZ+QQ89GyipSiLDFDdwChkZGGpqw=";
+    rev = "774717b089a75123cb7e6ddeeb4ecf8bcee729e3";
+    hash = "sha256-8vRgnNS9cCL/LOrJkWfUvCqbLsZsJAAsch03ZUqqbJM=";
   };
 
   pnpmDeps = fetchPnpmDeps {
