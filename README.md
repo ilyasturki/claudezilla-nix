@@ -110,6 +110,7 @@ nix develop                 # shell with nix-update and jq for scripts/update.sh
 nix build .#default         # builds the native host
 nix build .#firefox-extension
 nix flake check
+nix fmt
 ```
 
 ## License

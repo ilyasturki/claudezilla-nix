@@ -1,59 +1,45 @@
 {
   description = "Claudezilla — Firefox browser automation MCP for Claude Code";
 
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-  };
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
   outputs =
-    {
-      nixpkgs,
-      flake-utils,
-      ...
-    }:
+    { self, nixpkgs }:
     let
-      overlay = final: _prev: {
+      forAllSystems = nixpkgs.lib.genAttrs [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "x86_64-linux"
+      ];
+    in
+    {
+      overlays.default = final: _prev: {
         claudezilla = final.callPackage ./package.nix { };
         claudezilla-firefox-extension = final.callPackage ./extension.nix { };
       };
-    in
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ overlay ];
-        };
-      in
-      {
-        packages = {
-          default = pkgs.claudezilla;
-          inherit (pkgs) claudezilla;
-          firefox-extension = pkgs.claudezilla-firefox-extension;
-        };
 
-        apps.default = {
-          type = "app";
-          program = "${pkgs.claudezilla}/bin/claudezilla-mcp";
-          meta = {
-            description = "Claudezilla MCP server for Claude Code";
-            license = pkgs.lib.licenses.mit;
-            mainProgram = "claudezilla-mcp";
-          };
-        };
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          default = self.packages.${system}.claudezilla;
+          claudezilla = pkgs.callPackage ./package.nix { };
+          firefox-extension = pkgs.callPackage ./extension.nix { };
+        }
+      );
 
-        devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
+      devShells = forAllSystems (system: {
+        default = nixpkgs.legacyPackages.${system}.mkShell {
+          packages = with nixpkgs.legacyPackages.${system}; [
             jq
             nix-update
           ];
         };
+      });
 
-        formatter = pkgs.nixfmt;
-      }
-    )
-    // {
-      overlays.default = overlay;
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
 }
