@@ -66,21 +66,13 @@ Wire the Firefox extension, the native messaging host manifest, and the Claude C
 ```nix
 { pkgs, inputs, ... }:
 let
-  cz = inputs.claudezilla-nix.packages.${pkgs.system}.default;
-  ext = inputs.claudezilla-nix.packages.${pkgs.system}.firefox-extension;
+  cz = inputs.claudezilla-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  ext = inputs.claudezilla-nix.packages.${pkgs.stdenv.hostPlatform.system}.firefox-extension;
 in
 {
   home.packages = [ cz ];
 
-  home.file.".mozilla/native-messaging-hosts/claudezilla.json".source =
-    (pkgs.formats.json { }).generate "claudezilla-native-host.json" {
-      name = "claudezilla";
-      description = "Claude Code Firefox browser automation bridge";
-      path = "${cz}/bin/claudezilla-host";
-      type = "stdio";
-      allowed_extensions = [ ext.addonId ];
-    };
-
+  programs.firefox.nativeMessagingHosts = [ cz ];
   programs.firefox.profiles.default.extensions.packages = [ ext ];
 }
 ```
