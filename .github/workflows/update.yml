@@ -43,6 +43,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ steps.cpr.outputs.pull-request-number }}
         # Reaching this step implies the in-job build + flake check already passed, so
-        # the validated bump can land directly. (build.yml does not re-run on PRs opened
-        # by GITHUB_TOKEN, so there are no extra checks to gate on here.)
-        run: gh pr merge --squash --delete-branch "$PR"
+        # the validated bump can land directly without waiting on build.yml's PR run.
+        # No --delete-branch: deleting the head ref while that run is starting fails it;
+        # create-pull-request's delete-branch removes the branch on the next update.
+        run: gh pr merge --squash "$PR"
