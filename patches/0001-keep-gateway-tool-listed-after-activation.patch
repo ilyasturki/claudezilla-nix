@@ -12,19 +12,24 @@ help, because a client cannot call a tool whose schema was never advertised.
 
 The CallTool handler already processes firefox_activate unconditionally, ahead
 of every activation check, so simply keeping it listed is enough to make
-widening work.
+widening work. Eager mode already prepended GATEWAY_TOOLS; building the list
+the same way in every mode keeps firefox_activate listed exactly once there.
 
+diff --git a/mcp/server.js b/mcp/server.js
+index ca7ddba..9afe268 100644
 --- a/mcp/server.js
 +++ b/mcp/server.js
-@@ -1408,7 +1408,10 @@
+@@ -1380,11 +1380,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
+   // After activation: filter by activated categories + canNavigate check
+   const navigateAllowed = await canNavigate();
+ 
+-  let availableTools = TOOLS.filter(tool => activatedCategories.has(tool.category));
+-  if (TOOL_MODE === 'all') {
+-    // In eager mode, retain firefox_activate in tool list as a compatible no-op
+-    availableTools = [...GATEWAY_TOOLS, ...availableTools];
+-  }
++  // Listed in every mode so a session that activated a narrow category (e.g. "diagnose") can still widen it
++  let availableTools = [...GATEWAY_TOOLS, ...TOOLS.filter(tool => activatedCategories.has(tool.category))];
+   if (!navigateAllowed) {
      availableTools = availableTools.filter(tool => tool.name !== 'firefox_navigate');
    }
- 
--  return { tools: availableTools };
-+  // Keep the gateway listed so a later call can widen the activated set: a
-+  // session that activated a narrow category (e.g. "diagnose") would otherwise
-+  // lose firefox_activate for good and never reach the browser tools.
-+  return { tools: [...GATEWAY_TOOLS, ...availableTools] };
- });
- 
- // Handle tool calls
