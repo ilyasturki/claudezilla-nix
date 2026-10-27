@@ -32,28 +32,16 @@ replace_hash() {
 
 bump_host() {
   echo "==> Bumping native host"
-  local new_rev new_version new_src_hash prefetch src_path work
+  local new_rev new_version new_src_hash
   new_rev=$(git ls-remote "https://github.com/${UPSTREAM_REPO}.git" HEAD | awk '{print $1}')
   new_version=$(curl -fsSL "https://raw.githubusercontent.com/${UPSTREAM_REPO}/${new_rev}/package.json" \
     | "${JQ[@]}" -r .version)
   echo "    rev:     ${new_rev}"
   echo "    version: ${new_version}"
 
-  prefetch=$("${NIX_PREFETCH_GIT[@]}" --quiet --url "https://github.com/${UPSTREAM_REPO}.git" --rev "${new_rev}")
-  new_src_hash=$("${JQ[@]}" -r .hash <<< "${prefetch}")
-  src_path=$("${JQ[@]}" -r .path <<< "${prefetch}")
+  new_src_hash=$("${NIX_PREFETCH_GIT[@]}" --quiet --url "https://github.com/${UPSTREAM_REPO}.git" --rev "${new_rev}" \
+    | "${JQ[@]}" -r .hash)
   echo "    src hash: ${new_src_hash}"
-
-  echo "==> Regenerating mcp/pnpm-lock.yaml"
-  work=$(mktemp -d)
-  cp "${src_path}/mcp/package.json" "${src_path}/mcp/pnpm-lock.yaml" "${work}/"
-  chmod u+w "${work}"/*
-  nix run --extra-experimental-features 'nix-command flakes' --inputs-from . nixpkgs#pnpm_10 -- \
-    --dir "${work}" install --lockfile-only --ignore-scripts
-  cp "${work}/pnpm-lock.yaml" mcp-pnpm-lock.yaml
-  rm -rf "${work}"
-  # Flakes only see files known to git.
-  git add --intent-to-add mcp-pnpm-lock.yaml
 
   sed -i \
     -e "s|version = \"[^\"]*\";|version = \"${new_version}\";|" \

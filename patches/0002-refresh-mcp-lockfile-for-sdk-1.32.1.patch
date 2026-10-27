@@ -1,0 +1,41 @@
+Refresh mcp/pnpm-lock.yaml for @modelcontextprotocol/sdk 1.32.1
+
+f9e67d9 bumped the SDK in mcp/package.json but left the lockfile on 1.29.0,
+so `pnpm install --frozen-lockfile` in mcp/ fails with
+ERR_PNPM_OUTDATED_LOCKFILE. Regenerated with `pnpm install --lockfile-only`.
+
+diff --git a/mcp/pnpm-lock.yaml b/mcp/pnpm-lock.yaml
+index 32a1710..ec8b211 100644
+--- a/mcp/pnpm-lock.yaml
++++ b/mcp/pnpm-lock.yaml
+@@ -9,8 +9,8 @@ importers:
+   .:
+     dependencies:
+       '@modelcontextprotocol/sdk':
+-        specifier: 1.29.0
+-        version: 1.29.0(zod@4.3.6)
++        specifier: 1.32.1
++        version: 1.32.1(zod@4.3.6)
+ 
+ packages:
+ 
+@@ -20,8 +20,8 @@ packages:
+     peerDependencies:
+       hono: ^4
+ 
+-  '@modelcontextprotocol/sdk@1.29.0':
+-    resolution: {integrity: sha512-zo37mZA9hJWpULgkRpowewez1y6ML5GsXJPY8FI0tBBCd77HEvza4jDqRKOXgHNn867PVGCyTdzqpz0izu5ZjQ==}
++  '@modelcontextprotocol/sdk@1.32.1':
++    resolution: {integrity: sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==}
+     engines: {node: '>=18'}
+     peerDependencies:
+       '@cfworker/json-schema': ^4.1.1
+@@ -386,7 +386,7 @@ snapshots:
+     dependencies:
+       hono: 4.12.9
+ 
+-  '@modelcontextprotocol/sdk@1.29.0(zod@4.3.6)':
++  '@modelcontextprotocol/sdk@1.32.1(zod@4.3.6)':
+     dependencies:
+       '@hono/node-server': 1.19.12(hono@4.12.9)
+       ajv: 8.18.0

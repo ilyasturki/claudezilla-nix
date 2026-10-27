@@ -8,6 +8,9 @@
   pnpmConfigHook,
   fetchPnpmDeps,
 }:
+let
+  lockfilePatch = ./patches/0002-refresh-mcp-lockfile-for-sdk-1.32.1.patch;
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "claudezilla";
   version = "0.7.2";
@@ -21,17 +24,19 @@ stdenv.mkDerivation (finalAttrs: {
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
-    # Upstream doesn't always refresh its lockfile when bumping deps; scripts/update.sh regenerates it.
-    postPatch = "cp ${./mcp-pnpm-lock.yaml} pnpm-lock.yaml";
     sourceRoot = "${finalAttrs.src.name}/mcp";
+    patches = [ lockfilePatch ];
+    # The patch is rooted at the repository, one level above sourceRoot.
+    patchFlags = [ "-p2" ];
     hash = "sha256-gOCkp1mXnScHl6R+06B5zXRP/G2+9tIFUK1wPGVX0Ms=";
     fetcherVersion = 3;
     pnpm = pnpm_10;
   };
 
-  patches = [ ./patches/0001-keep-gateway-tool-listed-after-activation.patch ];
-
-  postPatch = "cp ${./mcp-pnpm-lock.yaml} mcp/pnpm-lock.yaml";
+  patches = [
+    lockfilePatch
+    ./patches/0001-keep-gateway-tool-listed-after-activation.patch
+  ];
 
   nativeBuildInputs = [
     makeWrapper
