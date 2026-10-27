@@ -10,24 +10,28 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "claudezilla";
-  version = "0.7.1";
+  version = "0.7.2";
 
   src = fetchFromGitHub {
     owner = "boot-industries";
     repo = "claudezilla";
-    rev = "774717b089a75123cb7e6ddeeb4ecf8bcee729e3";
-    hash = "sha256-8vRgnNS9cCL/LOrJkWfUvCqbLsZsJAAsch03ZUqqbJM=";
+    rev = "7823c37c5e77b173c99b4df8e967f02b9d043569";
+    hash = "sha256-Pa3YZ5lkkYimwN6a7rKeV83E9OqlV8E861Te8b0Nl4U=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
+    # Upstream doesn't always refresh its lockfile when bumping deps; scripts/update.sh regenerates it.
+    postPatch = "cp ${./mcp-pnpm-lock.yaml} pnpm-lock.yaml";
     sourceRoot = "${finalAttrs.src.name}/mcp";
-    hash = "sha256-+kVkbACg+HKkZF5F+6WOibhVKb1ZPDbNyOUf/OhaqN8=";
+    hash = "sha256-gOCkp1mXnScHl6R+06B5zXRP/G2+9tIFUK1wPGVX0Ms=";
     fetcherVersion = 3;
     pnpm = pnpm_10;
   };
 
   patches = [ ./patches/0001-keep-gateway-tool-listed-after-activation.patch ];
+
+  postPatch = "cp ${./mcp-pnpm-lock.yaml} mcp/pnpm-lock.yaml";
 
   nativeBuildInputs = [
     makeWrapper
