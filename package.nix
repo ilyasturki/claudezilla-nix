@@ -76,10 +76,10 @@ stdenv.mkDerivation (finalAttrs: {
       chmod 755 $libexec/host/index.js
       chmod 755 $libexec/mcp/server.js
 
-      makeWrapper ${nodejs}/bin/node $out/bin/claudezilla-host \
+      makeWrapper ${lib.getExe nodejs} $out/bin/claudezilla-host \
         --add-flags "$libexec/host/index.js"
 
-      makeWrapper ${nodejs}/bin/node $out/bin/claudezilla-mcp \
+      makeWrapper ${lib.getExe nodejs} $out/bin/claudezilla-mcp \
         --add-flags "$libexec/mcp/server.js"
 
       mkdir -p $out/lib/mozilla/native-messaging-hosts
