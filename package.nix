@@ -7,6 +7,7 @@
   pnpm_10,
   pnpmConfigHook,
   fetchPnpmDeps,
+  nix-update-script,
 }:
 let
   lockfilePatch = ./patches/0002-refresh-mcp-lockfile-for-sdk-1.32.1.patch;
@@ -18,8 +19,8 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "boot-industries";
     repo = "claudezilla";
-    rev = "7823c37c5e77b173c99b4df8e967f02b9d043569";
-    hash = "sha256-Pa3YZ5lkkYimwN6a7rKeV83E9OqlV8E861Te8b0Nl4U=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-N9aBahjzCHi3SoFXSViAG/vsST8eWim8OsCg8u7rg/Q=";
   };
 
   pnpmDeps = fetchPnpmDeps {
@@ -88,9 +89,12 @@ stdenv.mkDerivation (finalAttrs: {
       runHook postInstall
     '';
 
+  passthru.updateScript = nix-update-script { };
+
   meta = {
     description = "Firefox browser automation bridge for Claude Code (native host + MCP server)";
     homepage = "https://claudezilla.com";
+    changelog = "https://github.com/boot-industries/claudezilla/blob/v${finalAttrs.version}/CHANGELOG.md";
     license = lib.licenses.mit;
     platforms = lib.platforms.linux ++ lib.platforms.darwin;
     mainProgram = "claudezilla-mcp";

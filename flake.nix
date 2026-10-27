@@ -44,10 +44,9 @@
         };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            nixfmt
-            nix-prefetch-git
+          packages = with pkgs; [
             jq
+            nix-update
           ];
         };
 

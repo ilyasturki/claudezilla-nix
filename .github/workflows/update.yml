@@ -19,7 +19,7 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
       - name: Run update script
-        run: ./scripts/update.sh
+        run: nix develop --command ./scripts/update.sh
       - name: Create pull request
         id: cpr
         uses: peter-evans/create-pull-request@v6
@@ -27,7 +27,7 @@ jobs:
           commit-message: "chore: update claudezilla"
           title: "chore: update claudezilla"
           body: |
-            Automated weekly bump of the claudezilla native host (upstream `main`)
+            Automated weekly bump of the claudezilla native host (latest upstream tag)
             and the AMO Firefox extension xpi.
 
             The native host and extension were already built and `nix flake check`ed

@@ -8,8 +8,8 @@ Packages both the native messaging host (`claudezilla-host`, `claudezilla-mcp`) 
 
 Claudezilla is not in nixpkgs. This flake gives you:
 
-- A reproducible install pinned to an exact upstream commit + AMO extension version.
-- An automated weekly update PR that bumps both the host rev and the extension xpi.
+- A reproducible install pinned to an upstream release tag + AMO extension version.
+- An automated weekly update PR that bumps both the host release and the extension xpi.
 - A clean integration point for home-manager (Firefox extension package + native messaging manifest).
 
 ## Quick start
@@ -95,18 +95,18 @@ The flake input is pinned via `flake.lock`. Bump it with:
 nix flake update
 ```
 
-The repo itself is auto-updated weekly via `.github/workflows/update.yml`, which opens a PR bumping the host rev/hash and the AMO extension version/hash.
+The repo itself is auto-updated weekly via `.github/workflows/update.yml`, which opens a PR bumping the host to the latest upstream tag (through `nix-update`) and the AMO extension to its latest release.
 
 To run the update locally:
 
 ```sh
-./scripts/update.sh
+nix develop --command ./scripts/update.sh
 ```
 
 ## Development
 
 ```sh
-nix develop                 # shell with nixpkgs-fmt and nix-prefetch-git
+nix develop                 # shell with nix-update and jq for scripts/update.sh
 nix build .#default         # builds the native host
 nix build .#firefox-extension
 nix flake check
